@@ -1,74 +1,62 @@
-import React, { useState } from 'react';
-import { upvoteQuestionOptimistic } from '../../redux/slices/QuestionsSlice';
-import { useAppDispatch } from '../../redux/hooks';
+import React from 'react';
 import { ArrowUp, MessageCircle, Clock } from 'lucide-react';
 import type { Question } from '../../redux/types';
 
 interface QuestionCardProps {
   question: Question;
+  onUpvote: (questionId: number) => void;
 }
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
-  const dispatch = useAppDispatch();
-  const [hasUpvoted, setHasUpvoted] = useState<boolean>(false);
-
-  const handleUpvote = (): void => {
-    if (!hasUpvoted) {
-      dispatch(upvoteQuestionOptimistic(question.id));
-      setHasUpvoted(true);
-    }
-  };
-
+const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpvote }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium text-sm">
+    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      {/* Author Info */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-sm">
           {question.author.initials}
         </div>
-        
-        <div className="flex-1">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-            <span className="font-medium text-gray-900">{question.author.name}</span>
-            <span>asked {question.askedAt}</span>
-          </div>
-          
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 cursor-pointer">
-            {question.title}
-          </h3>
-          
-          <p className="text-gray-600 mb-4">{question.description}</p>
-          
-          <div className="flex flex-wrap gap-2 mb-4">
-            {question.tags.map((tag, idx) => (
-              <span key={idx} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors cursor-pointer">
-                {tag}
-              </span>
-            ))}
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <button 
-                onClick={handleUpvote}
-                className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                  hasUpvoted ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'
-                }`}
-              >
-                <ArrowUp className="w-4 h-4" />
-                {question.upvotes}
-              </button>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MessageCircle className="w-4 h-4" />
-                {question.answers} answers
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Clock className="w-4 h-4" />
-              {question.lastActivity}
-            </div>
-          </div>
+        <span className="text-gray-700 font-medium">{question.author.name}</span>
+        <span className="text-gray-500 text-sm">asked {question.askedAt}</span>
+      </div>
+
+      {/* Question Title */}
+      <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-indigo-600 cursor-pointer">
+        {question.title}
+      </h3>
+
+      {/* Question Description */}
+      <p className="text-gray-600 mb-4 line-clamp-2">
+        {question.description}
+      </p>
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {question.tags.map((tag, idx) => (
+          <span
+            key={idx}
+            className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-sm font-medium"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      {/* Stats */}
+      <div className="flex items-center gap-6 text-sm text-gray-600">
+        <button
+          onClick={() => onUpvote(question.id)}
+          className="flex items-center gap-1 hover:text-indigo-600 transition-colors"
+        >
+          <ArrowUp className="w-4 h-4" />
+          <span className="font-medium">{question.upvotes}</span>
+        </button>
+        <div className="flex items-center gap-1">
+          <MessageCircle className="w-4 h-4" />
+          <span>{question.answers} answers</span>
+        </div>
+        <div className="flex items-center gap-1 ml-auto">
+          <Clock className="w-4 h-4" />
+          <span>{question.lastActivity}</span>
         </div>
       </div>
     </div>
