@@ -1,0 +1,22 @@
+[
+  {
+    "id": 101,
+    "questionId": 1,
+    "author": { "id": 10, "name": "Aditi" },
+    "body": "You can solve this by using async/await and keeping the logic in a service layer. Example:\n\n```js\nasync function fetchData() { const r = await fetch('/api'); }\n```",
+    "tags": ["design"],
+    "score": 12,
+    "createdAt": "2025-02-12T12:10:00Z",
+    "isAccepted": false
+  },
+  {
+    "id": 102,
+    "questionId": 2,
+    "author": { "id": 21, "name": "Rahul" },
+    "body": "Another approach is to use recursion for nested problems. For prototype, keep it simple and validate inputs.",
+    "tags": ["algorithm"],
+    "score": 5,
+    "createdAt": "2025-02-12T12:45:00Z",
+    "isAccepted": true
+  }
+]
