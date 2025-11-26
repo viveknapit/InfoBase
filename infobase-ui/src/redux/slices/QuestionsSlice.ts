@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { Question, QuestionsState } from '../types';
+import type { Question, QuestionsState, QuestionDraft, CreateQuestionPayload } from '../types';
 import { mockApi } from '../../services/mockApi';
 
 export const fetchQuestions = createAsyncThunk(
@@ -26,10 +26,19 @@ export const upvoteQuestion = createAsyncThunk(
   }
 );
 
+// NEW: Create question thunk
 export const createQuestion = createAsyncThunk(
   'questions/createQuestion',
-  async (questionData: Omit<Question, 'id'>) => {
+  async (questionData: CreateQuestionPayload) => {
     return await mockApi.questions.create(questionData);
+  }
+);
+
+// NEW: Update question thunk
+export const updateQuestion = createAsyncThunk(
+  'questions/updateQuestion',
+  async ({ id, updates }: { id: number; updates: Partial<Question> }) => {
+    return await mockApi.questions.update(id, updates);
   }
 );
 
@@ -41,10 +50,58 @@ export const deleteQuestion = createAsyncThunk(
   }
 );
 
+// NEW: Search questions thunk
+export const searchQuestions = createAsyncThunk(
+  'questions/searchQuestions',
+  async (query: string) => {
+    return await mockApi.questions.search(query);
+  }
+);
+
+// NEW: Validate question thunk
+export const validateQuestion = createAsyncThunk(
+  'questions/validateQuestion',
+  async (title: string) => {
+    return await mockApi.questions.validate(title);
+  }
+);
+
+// NEW: Draft management thunks
+export const fetchDrafts = createAsyncThunk(
+  'questions/fetchDrafts',
+  async () => {
+    return await mockApi.drafts.getAll();
+  }
+);
+
+export const saveDraft = createAsyncThunk(
+  'questions/saveDraft',
+  async (draft: Omit<QuestionDraft, 'id' | 'createdAt' | 'updatedAt'>) => {
+    return await mockApi.drafts.save(draft);
+  }
+);
+
+export const updateDraft = createAsyncThunk(
+  'questions/updateDraft',
+  async ({ id, updates }: { id: string; updates: Partial<QuestionDraft> }) => {
+    return await mockApi.drafts.update(id, updates);
+  }
+);
+
+export const deleteDraft = createAsyncThunk(
+  'questions/deleteDraft',
+  async (id: string) => {
+    await mockApi.drafts.delete(id);
+    return id;
+  }
+);
+
 const initialState: QuestionsState = {
   items: [],
   isLoading: false,
   error: null,
+  currentQuestion: null,
+  drafts: []
 };
 
 const questionsSlice = createSlice({
@@ -60,6 +117,12 @@ const questionsSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setCurrentQuestion: (state, action: PayloadAction<Question | null>) => {
+      state.currentQuestion = action.payload;
+    },
+    clearCurrentQuestion: (state) => {
+      state.currentQuestion = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -84,6 +147,7 @@ const questionsSlice = createSlice({
       })
       .addCase(fetchQuestionById.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.currentQuestion = action.payload;
         const index = state.items.findIndex(q => q.id === action.payload.id);
         if (index !== -1) {
           state.items[index] = action.payload;
@@ -101,6 +165,9 @@ const questionsSlice = createSlice({
         const question = state.items.find(q => q.id === action.payload.id);
         if (question) {
           question.upvotes = action.payload.newUpvotes;
+        }
+        if (state.currentQuestion?.id === action.payload.id) {
+          state.currentQuestion.upvotes = action.payload.newUpvotes;
         }
       })
       .addCase(upvoteQuestion.rejected, (state, action) => {
@@ -121,6 +188,26 @@ const questionsSlice = createSlice({
         state.error = action.error.message || 'Failed to create question';
       })
       
+      // Update question
+      .addCase(updateQuestion.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateQuestion.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.items.findIndex(q => q.id === action.payload.id);
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
+        if (state.currentQuestion?.id === action.payload.id) {
+          state.currentQuestion = action.payload;
+        }
+      })
+      .addCase(updateQuestion.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to update question';
+      })
+      
       // Delete question
       .addCase(deleteQuestion.pending, (state) => {
         state.isLoading = true;
@@ -129,13 +216,59 @@ const questionsSlice = createSlice({
       .addCase(deleteQuestion.fulfilled, (state, action) => {
         state.isLoading = false;
         state.items = state.items.filter(q => q.id !== action.payload);
+        if (state.currentQuestion?.id === action.payload) {
+          state.currentQuestion = null;
+        }
       })
       .addCase(deleteQuestion.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to delete question';
+      })
+      
+      // Search questions
+      .addCase(searchQuestions.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(searchQuestions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = action.payload;
+      })
+      .addCase(searchQuestions.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to search questions';
+      })
+      
+      // Fetch drafts
+      .addCase(fetchDrafts.fulfilled, (state, action) => {
+        state.drafts = action.payload;
+      })
+      
+      // Save draft
+      .addCase(saveDraft.fulfilled, (state, action) => {
+        state.drafts.push(action.payload);
+      })
+      
+      // Update draft
+      .addCase(updateDraft.fulfilled, (state, action) => {
+        const index = state.drafts.findIndex(d => d.id === action.payload.id);
+        if (index !== -1) {
+          state.drafts[index] = action.payload;
+        }
+      })
+      
+      // Delete draft
+      .addCase(deleteDraft.fulfilled, (state, action) => {
+        state.drafts = state.drafts.filter(d => d.id !== action.payload);
       });
   },
 });
 
-export const { upvoteQuestionOptimistic, clearError } = questionsSlice.actions;
+export const { 
+  upvoteQuestionOptimistic, 
+  clearError, 
+  setCurrentQuestion, 
+  clearCurrentQuestion 
+} = questionsSlice.actions;
+
 export default questionsSlice.reducer;

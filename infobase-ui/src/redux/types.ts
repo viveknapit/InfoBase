@@ -30,6 +30,8 @@ export interface QuestionsState {
   items: Question[];
   isLoading: boolean;
   error: string | null | undefined;
+  currentQuestion: Question | null; 
+  drafts: QuestionDraft[]; 
 }
 
 export interface FiltersState {
@@ -59,7 +61,24 @@ export interface Comment {
   created_at: string;
   updated_at?: string;
   edited?: boolean;
-  pending?: boolean; // client-only optimistic flag
+  pending?: boolean; 
+}
+
+
+export interface QuestionDraft {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateQuestionPayload {
+  title: string;
+  description: string;
+  tags: string[];
+  visibility?: string;
 }
 
 

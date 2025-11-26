@@ -1,10 +1,8 @@
-// src/components/AnswerCard.tsx
-import React from "react";
 import ReactMarkdown from "react-markdown";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../../redux/store";                // <- adjust if different
-import type { Answer } from "../../redux/types";                   // <- same place as slice uses
-import { selectAnswerById, voteOptimistic, voteAnswer } from "../../redux/slices/AnswerSlice"; // <- slice path
+import type { RootState } from "../../redux/store";               
+import type { Answer } from "../../redux/types";                   
+import { selectAnswerById, voteOptimistic, voteAnswer } from "../../redux/slices/AnswerSlice"; 
 
 type Props = {
   answerId: string | number;

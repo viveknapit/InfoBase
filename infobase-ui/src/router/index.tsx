@@ -3,6 +3,7 @@ import MainLayout from '../layouts/MainLayout';
 import HomePage from '../pages/HomePage';
 import QuestionsPage from '../pages/QuestionsPage';
 import ViewQuestionPage from '../pages/ViewQuestionPage';
+import AskQuestionPage from '../pages/AskQuestionPage';
 
 const router = createBrowserRouter([
   {
@@ -10,7 +11,7 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "/question", element: <QuestionsPage /> },
+      { path: "/question", element: <AskQuestionPage /> },
       {path: "/questions/:id", element: <ViewQuestionPage />},
       
     ],

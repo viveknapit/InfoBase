@@ -1,12 +1,9 @@
-// answersSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { Answer } from "../types";
 import axios from "axios";
 
 
-
-/* --- State --- */
 interface AnswersState {
   byId: Record<string, Answer>;
   idsByQuestion: Record<string, (string | number)[]>;
@@ -21,9 +18,6 @@ const initialState: AnswersState = {
   error: null,
 };
 
-/* --- Thunks --- */
-
-// fetch answers for a question
 export const fetchAnswers = createAsyncThunk<
   { questionId: string | number; answers: Answer[] },
   { questionId: string | number }
@@ -42,7 +36,7 @@ export const postAnswer = createAsyncThunk<
   return { questionId, answer: res.data };
 });
 
-// vote an answer (server)
+
 export const voteAnswer = createAsyncThunk<
   { answerId: string | number; newScore?: number },
   { answerId: string | number; delta: number }
