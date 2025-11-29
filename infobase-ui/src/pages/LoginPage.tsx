@@ -1,21 +1,21 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+//import { useLocation } from "react-router-dom";
 
 export default function LoginPage() {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const location = useLocation() as any;
+    //const location = useLocation() as any;
 
     const validate = () => {
         if (!identifier.trim()) return "Email or username is required";
         if (!password) return "Password is required";
-        // optional simple email-like check:
         if (identifier.includes("@") && !/^\S+@\S+\.\S+$/.test(identifier)) return "Enter a valid email";
         return null;
     };
     const handleSubmit = async (e: React.FormEvent) => {
+        setLoading(true);
         e.preventDefault();
         setError(null);
         const v = validate();
@@ -23,6 +23,7 @@ export default function LoginPage() {
         setError(v);
         return;
         }
+        setLoading(false);
     }
 
     return (

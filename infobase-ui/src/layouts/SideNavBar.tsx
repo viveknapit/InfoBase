@@ -26,7 +26,7 @@ export default function SideNavbar() {
     <div className="w-64 h-screen bg-white shadow-sm border-r px-4 py-6 flex flex-col gap-2">
       {menu.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.to;
+       // const isActive = location.pathname === item.to;
 
         return (
           <NavLink
