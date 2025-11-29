@@ -65,6 +65,6 @@ export interface Comment {
 export type SortOption = 'Most Upvoted' | 'Most Recent' | 'Most Answered';
 
 export type UserState = {
-  userInfo: User | null;
+  user: User | null;
   isLoggedIn: Boolean;
 }
