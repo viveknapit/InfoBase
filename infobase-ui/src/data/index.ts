@@ -3,10 +3,13 @@ import type { Question } from "../redux/types";
 export const mockQuestions : Question[] = [
     {
     id: 1,
-    author: { 
+    author: {
+      id: 1,
       name: 'David Park', 
       avatar: 'DP', 
-      initials: 'DP' 
+      initials: 'DP',
+      skills: 'C#, java, .net',
+      project: 1,
     },
     title: 'Best practices for state management in large React applications?',
     description: 'Our React app is growing and useState/useContext is becoming unwieldy. Should we switch to Redux or are there better alternatives?',
@@ -18,10 +21,13 @@ export const mockQuestions : Question[] = [
   },
   {
     id: 2,
-    author: { 
+    author: {
+      id: 1,
       name: 'Rachel Green', 
       avatar: 'RG', 
-      initials: 'RG' 
+      initials: 'RG',
+      skills: 'C#, java, .net',
+      project: 1,
     },
     title: 'Handling forms with validation in React - Formik vs React Hook Form?',
     description: 'Comparing form libraries for a new project. Which one should I choose and why?',
@@ -33,10 +39,13 @@ export const mockQuestions : Question[] = [
   },
   {
     id: 3,
-    author: { 
+    author: {
+      id: 3,
       name: 'Sarah Chen', 
-      avatar: 'SC', 
-      initials: 'SC' 
+      avatar: 'RC', 
+      initials: 'RC',
+      skills: 'C#, java, .net',
+      project: 1,
     },
     title: 'How to implement authentication in React with JWT tokens?',
     description: "I'm building a React application and need to implement secure authentication using JWT tokens. What's the best approach?",
@@ -48,10 +57,13 @@ export const mockQuestions : Question[] = [
   },
   {
     id: 4,
-    author: { 
+    author: {
+      id: 4,
       name: 'Mike Johnson', 
       avatar: 'MJ', 
-      initials: 'MJ' 
+      initials: 'MJ',
+      skills: 'C#, java, .net',
+      project: 1,
     },
     title: 'How to optimize React app performance?',
     description: 'My React application is getting slow with large lists. What are the best practices for optimization?',
@@ -63,10 +75,13 @@ export const mockQuestions : Question[] = [
   },
   {
     id: 5,
-    author: { 
+    author: {
+      id: 5,
       name: 'Emily Davis', 
       avatar: 'ED', 
-      initials: 'ED' 
+      initials: 'ED',
+      skills: 'C#, java, .net',
+      project: 1,
     },
     title: 'Best way to handle API calls in React?',
     description: 'Should I use fetch, axios, or React Query for API calls? What are the pros and cons of each?',

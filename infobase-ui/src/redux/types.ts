@@ -4,9 +4,18 @@ export interface Author {
   initials: string;
 }
 
+export interface User{
+  id: number;
+  name: string;
+  avatar?: string;
+  skills: string[];
+  initials: string;
+  project: string;
+}
+
 export interface Question {
   id: number;
-  author: Author;
+  author: User;
   title: string;
   description: string;
   tags: string[];
@@ -27,4 +36,35 @@ export interface FiltersState {
   selectedTags: string[];
 }
 
+export interface Answer {
+  id:number;
+  author: Author;
+  questionId: number;
+  body: string;
+  tags: string[];
+  score: number;
+  createdAt: string;
+  isAccepted: boolean;
+}
+
+export type ParentType = 'question' | 'answer';
+
+export interface Comment {
+  id: string | number;
+  parent_type: string;  
+  parent_id: string | number;
+  author: Author;
+  body: string;
+  created_at: string;
+  updated_at?: string;
+  edited?: boolean;
+  pending?: boolean; // client-only optimistic flag
+}
+
+
 export type SortOption = 'Most Upvoted' | 'Most Recent' | 'Most Answered';
+
+export type UserState = {
+  user: User | null;
+  isLoggedIn: Boolean;
+}
