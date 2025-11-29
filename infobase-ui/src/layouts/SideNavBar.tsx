@@ -7,10 +7,10 @@ import {
   Users,
   Settings,
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function SideNavbar() {
-  const location = useLocation();
+  //const location = useLocation();
 
   const menu = [
     { label: "Home", icon: Home, to: "/" },
