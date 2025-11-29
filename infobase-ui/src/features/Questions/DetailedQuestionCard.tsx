@@ -1,14 +1,13 @@
-// QuestionCard.connected.tsx
 import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../redux/store"; // adjust path if needed
-import type { Question, User } from "../../redux/types"; // adjust path if needed
+import type { AppDispatch } from "../../redux/store"; 
+import type { Question, User } from "../../redux/types"; 
 import {
   upvoteQuestion,
   upvoteQuestionOptimistic,
   fetchQuestionById,
-} from "../../redux/slices/QuestionsSlice"; // adjust path if needed
+} from "../../redux/slices/QuestionsSlice"; 
 
 type Props = {
   questionId: number;
@@ -43,18 +42,15 @@ export default function DetailedQuestionCard({ questionId, canEdit = false, onSh
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch question once (and whenever questionId changes)
   useEffect(() => {
     let mounted = true;
     setLoading(true);
     setError(null);
 
-    // dispatch thunk and unwrap to get payload
     dispatch(fetchQuestionById(questionId as number))
       .unwrap()
       .then((payload: any) => {
         if (!mounted) return;
-        // thunk returns { questionId, question }
         setQuestion(payload.question ?? null);
       })
       .catch((err: any) => {
@@ -187,7 +183,7 @@ export default function DetailedQuestionCard({ questionId, canEdit = false, onSh
               ▲
             </button>
 
-            <div className="text-sm font-semibold w-10 text-center">{(question as any).upvotes ?? question.score}</div>
+            <div className="text-sm font-semibold w-10 text-center">{(question as any).upvotes ?? question.upvotes}</div>
 
             <button
               onClick={() => {

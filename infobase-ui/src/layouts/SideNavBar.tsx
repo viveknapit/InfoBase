@@ -14,7 +14,7 @@ export default function SideNavbar() {
 
   const menu = [
     { label: "Home", icon: Home, to: "/" },
-    { label: "Ask Question", icon: Plus, to: "/question" },
+    { label: "Ask Question", icon: Plus, to: "/ask" },
     { label: "My Questions", icon: HelpCircle, to: "" },
     { label: "Categories", icon: Folder, to: "" },
     { label: "Tags", icon: Tags, to: "" },

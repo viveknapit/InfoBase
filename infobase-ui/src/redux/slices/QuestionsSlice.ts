@@ -15,7 +15,7 @@ export const fetchQuestionById = createAsyncThunk(
   async (id: number) => {
     const question = await mockApi.questions.getById(id);
     if (!question) throw new Error('Question not found');
-    return question;
+    return { questionId: id, question };
   }
 );
 
@@ -147,12 +147,13 @@ const questionsSlice = createSlice({
       })
       .addCase(fetchQuestionById.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentQuestion = action.payload;
-        const index = state.items.findIndex(q => q.id === action.payload.id);
+        const question = action.payload.question;
+        state.currentQuestion = question;
+        const index = state.items.findIndex(q => q.id === question.id);
         if (index !== -1) {
-          state.items[index] = action.payload;
+          state.items[index] = question;
         } else {
-          state.items.push(action.payload);
+          state.items.push(question);
         }
       })
       .addCase(fetchQuestionById.rejected, (state, action) => {

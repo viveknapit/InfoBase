@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUp, MessageCircle, Clock } from 'lucide-react';
 import type { Question } from '../../redux/types';
+import { useNavigate } from 'react-router-dom';
 
 interface QuestionCardProps {
   question: Question;
@@ -8,8 +9,20 @@ interface QuestionCardProps {
 }
 
 const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpvote }) => {
+
+  const navigate = useNavigate();
+
+  const handleQuestionClick = () => {
+    navigate(`/question/${question.id}`);
+  }
+
+  const handleUpvoteClick = (e : React.MouseEvent) => {
+      e.stopPropagation();
+      onUpvote(question.id);
+  }
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={handleQuestionClick}>
       {/* Author Info */}
       <div className="flex items-center gap-2 mb-3">
         <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-sm">
@@ -44,7 +57,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpvote }) => {
       {/* Stats */}
       <div className="flex items-center gap-6 text-sm text-gray-600">
         <button
-          onClick={() => onUpvote(question.id)}
+          // onClick={() => onUpvote(question.id)}
+          onClick={handleUpvoteClick}
           className="flex items-center gap-1 hover:text-indigo-600 transition-colors"
         >
           <ArrowUp className="w-4 h-4" />

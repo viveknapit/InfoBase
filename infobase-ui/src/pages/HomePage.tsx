@@ -6,12 +6,13 @@ import { setSortBy, toggleTag, clearFilters } from '../redux/slices/FilterSlice'
 import type { SortOption } from '../redux/types';
 import QuestionCard from '../features/Questions/QuestionCard';
 import { ChevronDown, Filter, Plus, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items: questions, isLoading, error } = useSelector((state: RootState) => state.questions);
   const { sortBy, selectedTags } = useSelector((state: RootState) => state.filters);
-  
+  const navigate = useNavigate();
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
@@ -88,15 +89,16 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">All Questions</h1>
             <p className="text-gray-600 mt-1">{filteredAndSortedQuestions.length} questions</p>
           </div>
-          <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+          <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+          onClick={()=> navigate('/ask')}
+          >
             <Plus className="w-5 h-5" />
             Ask a Question
           </button>
@@ -190,7 +192,7 @@ const HomePage: React.FC = () => {
 
         {/* Filter Modal */}
         {showFilterModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-900">Filter by Tags</h2>

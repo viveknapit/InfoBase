@@ -17,7 +17,6 @@ export const mockApi = {
       if (shouldFail()) {
         throw new Error('Failed to fetch questions');
       }
-      console.log(mockQuestions);
       return mockQuestions;
     },
     
