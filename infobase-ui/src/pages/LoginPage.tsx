@@ -1,17 +1,24 @@
 import { useState } from "react";
+import { loginService } from "../services/UserServices";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../redux/store";
+import { SetLoginDetails } from "../redux/slices/UserSlice";
+import { useNavigate } from "react-router-dom";
 //import { useLocation } from "react-router-dom";
 
 export default function LoginPage() {
-    const [identifier, setIdentifier] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     //const location = useLocation() as any;
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
 
     const validate = () => {
-        if (!identifier.trim()) return "Email or username is required";
+        if (!username.trim()) return "Email or username is required";
         if (!password) return "Password is required";
-        if (identifier.includes("@") && !/^\S+@\S+\.\S+$/.test(identifier)) return "Enter a valid email";
+        if (username.includes("@") && !/^\S+@\S+\.\S+$/.test(username)) return "Enter a valid email";
         return null;
     };
     const handleSubmit = async (e: React.FormEvent) => {
@@ -21,7 +28,16 @@ export default function LoginPage() {
         const v = validate();
         if (v) {
         setError(v);
+        setLoading(false);
         return;
+        }
+
+        try{
+            const resp = await loginService({username, password});
+            dispatch(SetLoginDetails(resp.user));
+            navigate('/', {replace: true});
+        }catch(err : any){
+            setError(err.response?.data?.message || "Invalid login credentials");
         }
         setLoading(false);
     }
@@ -36,8 +52,8 @@ export default function LoginPage() {
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email or username</label>
                     <input
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     placeholder="you@example.com"
                     autoComplete="username"
