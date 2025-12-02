@@ -60,8 +60,8 @@ export const mockApi = {
           avatar: 'CU',
           initials: 'CU',
           id: 0,
-          skills: '',
-          project: 0
+          skills: [],
+          project: ''
         },
         title: questionData.title,
         description: questionData.description,

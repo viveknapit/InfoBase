@@ -3,6 +3,7 @@ import questionsReducer from './slices/QuestionsSlice';
 import filterReducer from './slices/FilterSlice';
 import commentsReducer from './slices/CommentSlice';
 import answerReducer from './slices/AnswerSlice';
+import userReducer from './slices/UserSlice';
 import tagsReducer from './slices/TagsSlice';
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     filters: filterReducer,
     comments: commentsReducer,
     answers: answerReducer,
+    users: userReducer,
     tags: tagsReducer,
   },
 });
