@@ -2,11 +2,12 @@ import type { User } from "../redux/types";
 import { TOKEN_KEY, type LoginPayload, type LoginResponse } from "./Payload";
 import api from "../lib/api";
 
- export async function getUser(){
+export async function getUser(){
         const token = window.localStorage.getItem(TOKEN_KEY);
         if(token === '' || token === null){
             return null;
         }
+        // need to implement /me api
         const user = JSON.parse(atob(token.split('.')[1])) as User;
         return user;
 }

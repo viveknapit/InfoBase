@@ -7,9 +7,8 @@ export interface Author {
 export interface User{
   id: number;
   name: string;
-  avatar?: string;
+  email: string;
   skills: string[];
-  initials: string;
   project: string;
 }
 
@@ -75,8 +74,15 @@ export interface QuestionDraft {
 export interface CreateQuestionPayload {
   title: string;
   description: string;
-  tags: string[];
+  tags: number[];
   visibility?: string;
+  askedBy: number,
+  related_project: number
+}
+
+export interface Project {
+  id: number;
+  name: string;
 }
 
 
@@ -85,4 +91,9 @@ export type SortOption = 'Most Upvoted' | 'Most Recent' | 'Most Answered';
 export type UserState = {
   user: User | null;
   isLoggedIn: Boolean;
+}
+
+export type Tag = {
+  id: number;
+  name: string
 }

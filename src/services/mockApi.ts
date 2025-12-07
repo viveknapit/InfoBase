@@ -57,9 +57,8 @@ export const mockApi = {
         id: nextQuestionId++,
         author: {
           name: 'Current User',
-          avatar: 'CU',
-          initials: 'CU',
           id: 0,
+          email: 'example.com',
           skills: [],
           project: ''
         },
@@ -195,50 +194,105 @@ export const mockApi = {
     },
   },
   
-  tags: {
-    // Get all available tags
-    getAll: async (): Promise<string[]> => {
-      await delay(200);
-      const tagSet = new Set<string>();
-      questionsData.forEach(q => q.tags.forEach(tag => tagSet.add(tag)));
-      return Array.from(tagSet).sort();
-    },
+//   tags: {
+//     // Get all available tags
+//     import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+// import { mockApi } from '../../services/mockApi';
 
-    // Get popular tags
-    getPopular: async (limit: number = 10): Promise<Array<{ name: string; count: number }>> => {
-      await delay(200);
+// Tag interface
+// export interface Tag {
+//   id: number;
+//   name: string;
+// }
+
+// interface TagsState {
+//   allTags: Tag[];
+//   isLoading: boolean;
+//   error: string | null;
+// }
+
+// // Single async thunk for getting all tags
+// export const getAllTags = createAsyncThunk(
+//   'tags/getAll',
+//   async () => {
+//     return await mockApi.tags.getAll();
+//   }
+// );
+
+// const initialState: TagsState = {
+//   allTags: [],
+//   isLoading: false,
+//   error: null
+// };
+
+// const tagsSlice = createSlice({
+//   name: 'tags',
+//   initialState,
+//   reducers: {
+//     clearTagsError: (state) => {
+//       state.error = null;
+//     }
+//   },
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(getAllTags.pending, (state) => {
+//         state.isLoading = true;
+//         state.error = null;
+//       })
+//       .addCase(getAllTags.fulfilled, (state, action) => {
+//         state.isLoading = false;
+//         state.allTags = action.payload;
+//       })
+//       .addCase(getAllTags.rejected, (state, action) => {
+//         state.isLoading = false;
+//         state.error = action.error.message || 'Failed to fetch tags';
+//       });
+//   }
+// });
+
+// export const { clearTagsError } = tagsSlice.actions;
+// export default tagsSlice.reducer;getAll: async (): Promise<string[]> => {
+//       await delay(200);
+//       const tagSet = new Set<string>();
+//       questionsData.forEach(q => q.tags.forEach(tag => tagSet.add(tag)));
+//       return Array.from(tagSet).sort();
+//     },
+
+//     // Get popular tags
+//     getPopular: async (limit: number = 10): Promise<Array<{ name: string; count: number }>> => {
+//       await delay(200);
       
-      const tagCounts: { [key: string]: number } = {};
-      questionsData.forEach(q => {
-        q.tags.forEach(tag => {
-          tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-        });
-      });
+//       const tagCounts: { [key: string]: number } = {};
+//       questionsData.forEach(q => {
+//         q.tags.forEach(tag => {
+//           tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+//         });
+//       });
 
-      return Object.entries(tagCounts)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, limit);
-    },
+//       return Object.entries(tagCounts)
+//         .map(([name, count]) => ({ name, count }))
+//         .sort((a, b) => b.count - a.count)
+//         .slice(0, limit);
+//     },
 
-    // Search tags
-    search: async (query: string): Promise<string[]> => {
-      await delay(200);
-      const allTags = await mockApi.tags.getAll();
-      const lowerQuery = query.toLowerCase();
-      return allTags.filter(tag => tag.toLowerCase().includes(lowerQuery));
-    }
-  },
+//     // Search tags
+//     search: async (query: string): Promise<string[]> => {
+//       await delay(200);
+//       const allTags = await mockApi.tags.getAll();
+//       const lowerQuery = query.toLowerCase();
+//       return allTags.filter(tag => tag.toLowerCase().includes(lowerQuery));
+//     }
+//   },
   
-  answers: {
-    getByQuestionId: async (questionId: number) => {
-      await delay(400);
+//   answers: {
+//     getByQuestionId: async (questionId: number) => {
+//       await delay(400);
       
-      if (shouldFail()) {
-        throw new Error('Failed to fetch answers');
-      }
+//       if (shouldFail()) {
+//         throw new Error('Failed to fetch answers');
+//       }
       
-      return mockAnswers.filter(a => a.questionId === questionId);
-    },
-  },
-};
+//       return mockAnswers.filter(a => a.questionId === questionId);
+//     },
+//   },
+ };

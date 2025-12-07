@@ -34,7 +34,7 @@ export default function LoginPage() {
 
         try{
             const resp = await loginService({email, password});
-            dispatch(SetLoginDetails(resp.user));
+            dispatch(SetLoginDetails(resp.userDto));
             navigate('/', {replace: true});
         }catch(err : any){
             setError(err.response?.data?.message || "Invalid login credentials");

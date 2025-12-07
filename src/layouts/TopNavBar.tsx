@@ -3,6 +3,7 @@ import NotificationToggle from "../components/NotificationToggle";
 import ProfileToggle from "../components/ProfileToggle";
 
 export default function TopNavbar() {
+  
 
   return (
     <div className="w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b">

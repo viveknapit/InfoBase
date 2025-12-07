@@ -1,37 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { mockApi } from '../../services/mockApi';
+import { getAll } from '../../services/TagsServices';
+
+// Tag interface
+export interface Tag {
+  id: number;
+  name: string;
+}
 
 interface TagsState {
-  allTags: string[];
-  popularTags: Array<{ name: string; count: number }>;
+  allTags: Tag[];
   isLoading: boolean;
   error: string | null;
 }
 
-export const fetchAllTags = createAsyncThunk(
-  'tags/fetchAll',
+// Async thunk using your API function
+export const getAllTags = createAsyncThunk(
+  'tags/getAll',
   async () => {
-    return await mockApi.tags.getAll();
-  }
-);
-
-export const fetchPopularTags = createAsyncThunk(
-  'tags/fetchPopular',
-  async (limit: number = 10) => {
-    return await mockApi.tags.getPopular(limit);
-  }
-);
-
-export const searchTags = createAsyncThunk(
-  'tags/search',
-  async (query: string) => {
-    return await mockApi.tags.search(query);
+    const data = await getAll();
+    return data;
   }
 );
 
 const initialState: TagsState = {
   allTags: [],
-  popularTags: [],
   isLoading: false,
   error: null
 };
@@ -46,22 +38,17 @@ const tagsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllTags.pending, (state) => {
+      .addCase(getAllTags.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
-      .addCase(fetchAllTags.fulfilled, (state, action) => {
+      .addCase(getAllTags.fulfilled, (state, action) => {
         state.isLoading = false;
         state.allTags = action.payload;
       })
-      .addCase(fetchAllTags.rejected, (state, action) => {
+      .addCase(getAllTags.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch tags';
-      })
-      .addCase(fetchPopularTags.fulfilled, (state, action) => {
-        state.popularTags = action.payload;
-      })
-      .addCase(searchTags.fulfilled, (state, action) => {
-        state.allTags = action.payload;
       });
   }
 });

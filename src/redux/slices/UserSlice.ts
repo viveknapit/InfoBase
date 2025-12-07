@@ -7,9 +7,8 @@ const initialState: UserState = {
     user:{
         id: 101,
         name: 'Jenny',
-        avatar: 'abc.aws.com',
+        email: 'jenny@example.com',
         skills: ['C#', 'html', 'css', 'react', 'prokey'],
-        initials: 'J',
         project: 'Input Management',
     },
     isLoggedIn: false
@@ -26,7 +25,7 @@ const UserSlice = createSlice({
         },
         SetLoginDetails: (state, action: PayloadAction<User>) => {
         state.user = action.payload;
-        state.isLoggedIn = false;
+        state.isLoggedIn = true;
         },
     }
 });
