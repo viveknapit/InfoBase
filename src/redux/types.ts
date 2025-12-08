@@ -49,13 +49,13 @@ export interface FiltersState {
 
 export interface Answer {
   id:number;
-  author: Author;
-  questionId: number;
+  questionId:number;
+  author: UserShort;
   body: string;
-  tags: string[];
-  score: number;
+  votes: number;
   createdAt: string;
-  isAccepted: boolean;
+  updatedAt: string;
+  accepted: boolean;
 }
 
 export type ParentType = 'question' | 'answer';

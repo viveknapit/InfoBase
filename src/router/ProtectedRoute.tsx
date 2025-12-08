@@ -1,38 +1,64 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector} from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../redux/store";
-import type React from "react";
 import { Logout, SetLoginDetails } from "../redux/slices/UserSlice";
 import { getUser } from "../services/UserServices";
-import { useEffect } from "react";
 import { TOKEN_KEY } from "../services/Payload";
 
-type Props = {
-    children?: React.ReactNode;
-}
+type Props = { children?: React.ReactNode };
 
-export default function ProtectedRoute({children}: Props) {
-    const isLoggedIn = useSelector((state: RootState) => state.users.isLoggedIn);
-    const dispatch = useDispatch<AppDispatch>();
-    const location = useLocation();
+export default function ProtectedRoute({ children }: Props) {
+  const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
+
+  const isLoggedIn = useSelector((state: RootState) => state.users.isLoggedIn);
+
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     (async () => {
-      // temp routing handling will change after getting /me api
-      if(window.localStorage.getItem(TOKEN_KEY) != null){
-        return;
-      }
-      const user = await getUser();
-      if(user){
-        dispatch(SetLoginDetails(user));
-      }else{
+      try {
+        
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) {
+          if (mounted) {
+            dispatch(Logout());
+            setChecking(false);
+          }
+          return;
+        }
+
+        const user = await getUser();
+        if (!mounted) return;
+
+        if (user) {
+          dispatch(SetLoginDetails(user));
+        } else {
+          dispatch(Logout());
+        }
+      } catch (err) {
         dispatch(Logout());
+      } finally {
+        if (mounted) setChecking(false);
       }
     })();
+
+    return () => {
+      mounted = false;
+    };
   }, [dispatch]);
 
-  if(!isLoggedIn){
-    return <Navigate to="/login" state={{from: location}} replace />;
+  if (checking) {
+
+    return null;
   }
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
   return <>{children}</>;
 }

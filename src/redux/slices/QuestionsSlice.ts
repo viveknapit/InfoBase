@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import type { Question, QuestionsState, QuestionDraft, CreateQuestionPayload } from '../types';
 import { mockApi } from '../../services/mockApi';
 import { createQuestionApi, getAllQuestions, getQuestionById } from '../../services/QuestionService';
-import type { QuestionResponse } from '../../services/Payload';
 
 export const fetchQuestions = createAsyncThunk(
   'questions/fetchQuestions',

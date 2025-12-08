@@ -1,10 +1,12 @@
 import { Search } from "lucide-react";
 import NotificationToggle from "../components/NotificationToggle";
 import ProfileToggle from "../components/ProfileToggle";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
+import type { User } from "../redux/types";
 
 export default function TopNavbar() {
-  
-
+  const user= useSelector<RootState>((state) => state.users.user) as User;
   return (
     <div className="w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b">
       <div className="flex items-center gap-2">
@@ -31,12 +33,11 @@ export default function TopNavbar() {
         </div>
 
         <ProfileToggle
-        name="Vivek Napit"
-        avatarUrl={null}
-        onViewProfile={() => {
-          // e.g., navigate("/profile");
-          console.log("view profile");
-        }}
+          name={user.name}
+          avatarUrl={null}
+          onViewProfile={() => {
+            console.log("view profile");
+          }}
         onLogout={() => {
           console.log("logout");
         }}

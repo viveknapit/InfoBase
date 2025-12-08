@@ -7,8 +7,8 @@ export async function getUser(){
         if(token === '' || token === null){
             return null;
         }
-        const user = JSON.parse(atob(token.split('.')[1])) as User;
-        return user;
+        const res = await api.get('api/auth/me');
+        return res.data;
 }
 
 export async function logOut(): Promise<string> {
