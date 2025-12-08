@@ -6,6 +6,7 @@ import answerReducer from './slices/AnswerSlice';
 import userReducer from './slices/UserSlice';
 import tagsReducer from './slices/TagsSlice';
 import projectsReducer from './slices/ProjectSlice';
+import searchReducer from './slices/SearchSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     users: userReducer,
     tags: tagsReducer,
     projects: projectsReducer,
+    search : searchReducer
   },
 });
 
