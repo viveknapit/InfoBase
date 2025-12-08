@@ -1,4 +1,3 @@
-import type { User } from "../redux/types";
 import { TOKEN_KEY, type LoginPayload, type LoginResponse } from "./Payload";
 import api from "../lib/api";
 

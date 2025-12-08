@@ -4,8 +4,8 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store"; 
 import type { Question} from "../../redux/types"; 
 import {
-  upvoteQuestion,
-  upvoteQuestionOptimistic,
+  // upvoteQuestion,
+  // upvoteQuestionOptimistic,
   fetchQuestionById,
 } from "../../redux/slices/QuestionsSlice"; 
 import type { UserShort } from "../../services/Payload";
@@ -92,22 +92,22 @@ export default function DetailedQuestionCard({ questionId, canEdit = false, onSh
       </div>
     );
   }
+// to be implemented
+  // const handleUpvote = async () => {
+  //   // optimistic UI
+  //   dispatch(upvoteQuestionOptimistic(questionId));
 
-  const handleUpvote = async () => {
-    // optimistic UI
-    dispatch(upvoteQuestionOptimistic(questionId));
-
-    // persist via thunk and unwrap to detect error quickly
-    const res = await dispatch(upvoteQuestion(questionId as number)).unwrap().catch((err: any) => {
-      console.error("Upvote thunk failed:", err);
-      return { error: err };
-    });
-    if ((res as any)?.error) {
-      // re-fetch question
-      dispatch(fetchQuestionById(questionId as number));
-    } else {
-    }
-  };
+  //   // persist via thunk and unwrap to detect error quickly
+  //   const res = await dispatch(upvoteQuestion(questionId as number)).unwrap().catch((err: any) => {
+  //     console.error("Upvote thunk failed:", err);
+  //     return { error: err };
+  //   });
+  //   if ((res as any)?.error) {
+  //     // re-fetch question
+  //     dispatch(fetchQuestionById(questionId as number));
+  //   } else {
+  //   }
+  // };
 
   return (
     <article className="bg-white rounded shadow-sm p-6 mb-6">
@@ -171,7 +171,8 @@ export default function DetailedQuestionCard({ questionId, canEdit = false, onSh
         <div>
           <div className="flex items-center gap-2">
             <button
-              onClick={handleUpvote}
+            // to be implemented
+              // onClick={handleUpvote}
               className="px-3 py-1 rounded hover:bg-gray-100 text-sm focus:outline-none"
               aria-label="upvote"
             >

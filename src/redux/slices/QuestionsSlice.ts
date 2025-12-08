@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { Question, QuestionsState, QuestionDraft, CreateQuestionPayload } from '../types';
-import { mockApi } from '../../services/mockApi';
+import type { Question, QuestionsState, CreateQuestionPayload } from '../types';
 import { createQuestionApi, getAllQuestions, getQuestionById } from '../../services/QuestionService';
 
 export const fetchQuestions = createAsyncThunk(
@@ -19,12 +18,12 @@ export const fetchQuestionById = createAsyncThunk(
   }
 );
 
-export const upvoteQuestion = createAsyncThunk(
-  'questions/upvoteQuestion',
-  async (questionId: number) => {
-    return await mockApi.questions.upvote(questionId);
-  }
-);
+// export const upvoteQuestion = createAsyncThunk(
+//   'questions/upvoteQuestion',
+//   async (questionId: number) => {
+//     return await mockApi.questions.upvote(questionId);
+//   }
+// );
 
 // NEW: Create question thunk
 export const createQuestion = createAsyncThunk(
@@ -35,66 +34,66 @@ export const createQuestion = createAsyncThunk(
 );
 
 // NEW: Update question thunk
-export const updateQuestion = createAsyncThunk(
-  'questions/updateQuestion',
-  async ({ id, updates }: { id: number; updates: Partial<Question> }) => {
-    return await mockApi.questions.update(id, updates);
-  }
-);
+// export const updateQuestion = createAsyncThunk(
+//   'questions/updateQuestion',
+//   async ({ id, updates }: { id: number; updates: Partial<Question> }) => {
+//     return await mockApi.questions.update(id, updates);
+//   }
+// );
 
-export const deleteQuestion = createAsyncThunk(
-  'questions/deleteQuestion',
-  async (id: number) => {
-    await mockApi.questions.delete(id);
-    return id;
-  }
-);
+// export const deleteQuestion = createAsyncThunk(
+//   'questions/deleteQuestion',
+//   async (id: number) => {
+//     await mockApi.questions.delete(id);
+//     return id;
+//   }
+// );
 
 // NEW: Search questions thunk
-export const searchQuestions = createAsyncThunk(
-  'questions/searchQuestions',
-  async (query: string) => {
-    return await mockApi.questions.search(query);
-  }
-);
+// export const searchQuestions = createAsyncThunk(
+//   'questions/searchQuestions',
+//   async (query: string) => {
+//     return await mockApi.questions.search(query);
+//   }
+// );
 
 // NEW: Validate question thunk
-export const validateQuestion = createAsyncThunk(
-  'questions/validateQuestion',
-  async (title: string) => {
-    return await mockApi.questions.validate(title);
-  }
-);
+// export const validateQuestion = createAsyncThunk(
+//   'questions/validateQuestion',
+//   async (title: string) => {
+//     return await mockApi.questions.validate(title);
+//   }
+// );
 
 // NEW: Draft management thunks
-export const fetchDrafts = createAsyncThunk(
-  'questions/fetchDrafts',
-  async () => {
-    return await mockApi.drafts.getAll();
-  }
-);
+// export const fetchDrafts = createAsyncThunk(
+//   'questions/fetchDrafts',
+//   async () => {
+//     return await mockApi.drafts.getAll();
+//   }
+// );
 
-export const saveDraft = createAsyncThunk(
-  'questions/saveDraft',
-  async (draft: Omit<QuestionDraft, 'id' | 'createdAt' | 'updatedAt'>) => {
-    return await mockApi.drafts.save(draft);
-  }
-);
+// export const saveDraft = createAsyncThunk(
+//   'questions/saveDraft',
+//   async (draft: Omit<QuestionDraft, 'id' | 'createdAt' | 'updatedAt'>) => {
+//     return await mockApi.drafts.save(draft);
+//   }
+// );
 
-export const updateDraft = createAsyncThunk(
-  'questions/updateDraft',
-  async ({ id, updates }: { id: string; updates: Partial<QuestionDraft> }) => {
-    return await mockApi.drafts.update(id, updates);
-  }
-);
+// export const updateDraft = createAsyncThunk(
+//   'questions/updateDraft',
+//   async ({ id, updates }: { id: string; updates: Partial<QuestionDraft> }) => {
+//     return await mockApi.drafts.update(id, updates);
+//   }
+// );
 
-export const deleteDraft = createAsyncThunk(
-  'questions/deleteDraft',
-  async (id: string) => {
-    await mockApi.drafts.delete(id);
-    return id;
-  }
-);
+// export const deleteDraft = createAsyncThunk(
+//   'questions/deleteDraft',
+//   async (id: string) => {
+//     await mockApi.drafts.delete(id);
+//     return id;
+//   }
+// );
 
 const initialState: QuestionsState = {
   items: [],
@@ -162,18 +161,18 @@ const questionsSlice = createSlice({
       })
       
       // Upvote question
-      .addCase(upvoteQuestion.fulfilled, (state, action) => {
-        const question = state.items.find(q => q.id === action.payload.id);
-        if (question) {
-          question.votes = action.payload.newUpvotes;
-        }
-        if (state.currentQuestion?.id === action.payload.id) {
-          state.currentQuestion.votes = action.payload.newUpvotes;
-        }
-      })
-      .addCase(upvoteQuestion.rejected, (state, action) => {
-        state.error = action.error.message || 'Failed to upvote question';
-      })
+      // .addCase(upvoteQuestion.fulfilled, (state, action) => {
+      //   const question = state.items.find(q => q.id === action.payload.id);
+      //   if (question) {
+      //     question.votes = action.payload.newUpvotes;
+      //   }
+      //   if (state.currentQuestion?.id === action.payload.id) {
+      //     state.currentQuestion.votes = action.payload.newUpvotes;
+      //   }
+      // })
+      // .addCase(upvoteQuestion.rejected, (state, action) => {
+      //   state.error = action.error.message || 'Failed to upvote question';
+      // })
       
       // Create question
       .addCase(createQuestion.pending, (state) => {
@@ -190,78 +189,79 @@ const questionsSlice = createSlice({
       })
       
       // Update question
-      .addCase(updateQuestion.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(updateQuestion.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const index = state.items.findIndex(q => q.id === action.payload.id);
-        if (index !== -1) {
-          state.items[index] = action.payload;
-        }
-        if (state.currentQuestion?.id === action.payload.id) {
-          state.currentQuestion = action.payload;
-        }
-      })
-      .addCase(updateQuestion.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update question';
-      })
+      //.addCase(updateQuestion.pending, (state) => {
+      //   state.isLoading = true;
+      //   state.error = null;
+      // })
+      // .addCase(updateQuestion.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   const index = state.items.findIndex(q => q.id === action.payload.id);
+      //   if (index !== -1) {
+      //     state.items[index] = action.payload;
+      //   }
+      //   if (state.currentQuestion?.id === action.payload.id) {
+      //     state.currentQuestion = action.payload;
+      //   }
+      // })
+      // .addCase(updateQuestion.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.error = action.error.message || 'Failed to update question';
+      // })
       
       // Delete question
-      .addCase(deleteQuestion.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(deleteQuestion.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.items = state.items.filter(q => q.id !== action.payload);
-        if (state.currentQuestion?.id === action.payload) {
-          state.currentQuestion = null;
-        }
-      })
-      .addCase(deleteQuestion.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to delete question';
-      })
+      // .addCase(deleteQuestion.pending, (state) => {
+      //   state.isLoading = true;
+      //   state.error = null;
+      // })
+      // .addCase(deleteQuestion.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.items = state.items.filter(q => q.id !== action.payload);
+      //   if (state.currentQuestion?.id === action.payload) {
+      //     state.currentQuestion = null;
+      //   }
+      // })
+      // .addCase(deleteQuestion.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.error = action.error.message || 'Failed to delete question';
+      // })
       
       // Search questions
-      .addCase(searchQuestions.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(searchQuestions.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.items = action.payload;
-      })
-      .addCase(searchQuestions.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to search questions';
-      })
+      // .addCase(searchQuestions.pending, (state) => {
+      //   state.isLoading = true;
+      //   state.error = null;
+      // })
+      // .addCase(searchQuestions.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.items = action.payload;
+      // })
+      // .addCase(searchQuestions.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.error = action.error.message || 'Failed to search questions';
+      // })
       
       // Fetch drafts
-      .addCase(fetchDrafts.fulfilled, (state, action) => {
-        state.drafts = action.payload;
-      })
+      // .addCase(fetchDrafts.fulfilled, (state, action) => {
+      //   state.drafts = action.payload;
+      // })
       
-      // Save draft
-      .addCase(saveDraft.fulfilled, (state, action) => {
-        state.drafts.push(action.payload);
-      })
+      // // Save draft
+      // .addCase(saveDraft.fulfilled, (state, action) => {
+      //   state.drafts.push(action.payload);
+      // })
       
-      // Update draft
-      .addCase(updateDraft.fulfilled, (state, action) => {
-        const index = state.drafts.findIndex(d => d.id === action.payload.id);
-        if (index !== -1) {
-          state.drafts[index] = action.payload;
-        }
-      })
+      // // Update draft
+      // .addCase(updateDraft.fulfilled, (state, action) => {
+      //   const index = state.drafts.findIndex(d => d.id === action.payload.id);
+      //   if (index !== -1) {
+      //     state.drafts[index] = action.payload;
+      //   }
+      // })
       
       // Delete draft
-      .addCase(deleteDraft.fulfilled, (state, action) => {
-        state.drafts = state.drafts.filter(d => d.id !== action.payload);
-      });
+      // .addCase(deleteDraft.fulfilled, (state, action) => {
+      //   state.drafts = state.drafts.filter(d => d.id !== action.payload);
+      // })
+      
   },
 });
 

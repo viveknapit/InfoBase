@@ -1,4 +1,4 @@
-import type { Answer, Pagination, Question, Tag, User } from "../redux/types"
+import type { Answer, Question, Tag, User } from "../redux/types"
 
 export interface LoginPayload{
     email: string,

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../redux/store';
-import { fetchQuestions, upvoteQuestion } from '../redux/slices/QuestionsSlice';
+import { fetchQuestions } from '../redux/slices/QuestionsSlice';
 import { setSortBy, toggleTag, clearFilters } from '../redux/slices/FilterSlice';
 import type { SortOption } from '../redux/types';
 import QuestionCard from '../features/Questions/QuestionCard';
@@ -66,8 +66,10 @@ const HomePage: React.FC = () => {
     return filtered;
   }, [questions, sortBy, selectedTags]);
 
+  //to be implemeted
   const handleUpvote = (questionId: number) => {
-    dispatch(upvoteQuestion(questionId));
+    questionId = questionId;
+    //dispatch(upvoteQuestion(questionId));
   };
 
   const handleSortChange = (option: SortOption) => {
