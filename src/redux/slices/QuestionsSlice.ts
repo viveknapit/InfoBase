@@ -1,12 +1,20 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { Question, QuestionsState, CreateQuestionPayload } from '../types';
-import { createQuestionApi, getAllQuestions, getQuestionById, voteQuestion } from '../../services/QuestionService';
+import { createQuestionApi, getAllQuestions, getQuestionById, voteQuestion, getMyQuestions} from '../../services/QuestionService';
 import type { VotePayload } from '../../services/Payload';
 
 export const fetchQuestions = createAsyncThunk(
   'questions/fetchQuestions',
-  async ({ page = 1, limit = 20 }: { page?: number; limit?: number } = {}) => {
+  async ({ page = 1, limit = 10 }: { page?: number; limit?: number } = {}) => {
     const response = await getAllQuestions(page, limit);
+    return response;
+  }
+);
+
+export const fetchMyQuestions = createAsyncThunk(
+  'questions/fetchMyQuestions',
+  async () => {
+    const response = await getMyQuestions();
     return response;
   }
 );
@@ -48,7 +56,8 @@ const initialState: QuestionsState = {
   isLoading: false,
   error: null,
   currentQuestion: null,
-  drafts: []
+  drafts: [],
+  myQuestions: [],
 };
 
 const questionsSlice = createSlice({
@@ -117,6 +126,27 @@ const questionsSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch questions';
       })
       
+      // Fetch my questions
+      .addCase(fetchMyQuestions.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyQuestions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (Array.isArray(action.payload)) {
+          state.myQuestions = action.payload;
+        } else if (action.payload && Array.isArray(action.payload.questions)) {
+          state.myQuestions = action.payload.questions;
+        } else {
+          state.myQuestions = [];
+        }
+      })
+      .addCase(fetchMyQuestions.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to fetch your questions';
+      })
+
+
       // Fetch single question
       .addCase(fetchQuestionById.pending, (state) => {
         state.isLoading = true;

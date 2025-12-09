@@ -34,6 +34,7 @@ export interface QuestionsState {
   currentQuestion: Question | null; 
   drafts: QuestionDraft[]; 
   pagination?: Pagination;
+  myQuestions: Question[];
 }
 
 export interface Pagination {

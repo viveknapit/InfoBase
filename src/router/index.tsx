@@ -5,6 +5,7 @@ import ViewQuestionPage from '../pages/ViewQuestionPage';
 import LoginPage from '../pages/LoginPage';
 import AskQuestionPage from '../pages/AskQuestionPage';
 import ProtectedRoute from './ProtectedRoute';
+import MyQuestionsPage from '../pages/MyQuestionPage';
 
 const router = createBrowserRouter([
   {path: "/login",
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "/ask", element: <AskQuestionPage /> },
       {path: "/question/:id", element: <ViewQuestionPage />},
+      {path: "/question/me", element: <MyQuestionsPage />},
     ],
   },
 ]);

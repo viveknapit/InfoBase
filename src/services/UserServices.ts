@@ -10,11 +10,6 @@ export async function getUser(){
         return res.data;
 }
 
-export async function logOut(): Promise<string> {
-        window.localStorage.removeItem(TOKEN_KEY);
-        return fetch('user/logout', {method: 'POST'}).then(x => x.text());
-}
-
 export async function loginService(payload: LoginPayload): Promise<LoginResponse>{
         const res = await api.post("/api/auth/login", payload);
 

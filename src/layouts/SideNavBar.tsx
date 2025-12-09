@@ -15,11 +15,11 @@ export default function SideNavbar() {
   const menu = [
     { label: "Home", icon: Home, to: "/" },
     { label: "Ask Question", icon: Plus, to: "/ask" },
-    { label: "My Questions", icon: HelpCircle, to: "" },
-    { label: "Categories", icon: Folder, to: "" },
-    { label: "Tags", icon: Tags, to: "" },
-    { label: "Users", icon: Users, to: "" },
-    { label: "Settings", icon: Settings, to: "" },
+    { label: "My Questions", icon: HelpCircle, to: "/question/me" },
+    { label: "Categories", icon: Folder, to: "/categories" },
+    { label: "Tags", icon: Tags, to: "/tags" },
+    { label: "Users", icon: Users, to: "/users" },
+    { label: "Settings", icon: Settings, to: "/settings" },
   ];
 
   return (

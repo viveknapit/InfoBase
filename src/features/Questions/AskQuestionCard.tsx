@@ -229,12 +229,12 @@ const AskQuestionCard: React.FC = () => {
         related_project: selectedProject!.id
       };
 
-      console.log('Question data being submitted:', questionData); // Debug log
+      console.log('Question data being submitted:', questionData);
 
       const result = await dispatch(createQuestion(questionData)).unwrap();
-      
+      console.log(result);
       // Store the created question ID and show success dialog
-      setCreatedQuestionId(result.id);
+      setCreatedQuestionId(result.question.id);
       setShowSuccessDialog(true);
     } catch (error) {
       console.error('Failed to create question:', error);
@@ -246,12 +246,12 @@ const AskQuestionCard: React.FC = () => {
 
   const handleViewQuestion = () => {
     if (createdQuestionId) {
-      navigate(`/question/${createdQuestionId}`);
+      navigate(`/question/${createdQuestionId}`, {replace: true});
     }
   };
 
   const handleGoHome = () => {
-    navigate('/');
+     window.location.href = "/";
   };
 
   const handleSaveDraft = () => {

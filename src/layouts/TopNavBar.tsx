@@ -1,12 +1,23 @@
 import { Search } from "lucide-react";
 import NotificationToggle from "../components/NotificationToggle";
 import ProfileToggle from "../components/ProfileToggle";
-import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../redux/store";
 import type { User } from "../redux/types";
+import { TOKEN_KEY } from "../services/Payload";
+import { Logout } from "../redux/slices/UserSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function TopNavbar() {
   const user= useSelector<RootState>((state) => state.users.user) as User;
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    window.localStorage.removeItem(TOKEN_KEY);
+    dispatch(Logout());
+    navigate("/login", {replace: true});
+  }
   return (
     <div className="w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b">
       <div className="flex items-center gap-2">
@@ -38,9 +49,7 @@ export default function TopNavbar() {
           onViewProfile={() => {
             console.log("view profile");
           }}
-        onLogout={() => {
-          console.log("logout");
-        }}
+        onLogout={handleLogOut}
       />
       </div>
     </div>

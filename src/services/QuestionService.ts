@@ -12,6 +12,11 @@ export async function getAllQuestions(page: number = 1, limit: number = 10): Pro
     return res.data;
 }
 
+export async function getMyQuestions(): Promise<AllQuestionResponse>{
+    const res = await api.get('api/questions/me');
+    return res.data;
+}
+
 export async function getQuestionById(id:number): Promise<Question> {
     const res = await api.get(`api/questions/${id}`);
     return res.data;
