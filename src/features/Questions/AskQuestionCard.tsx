@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import type { AppDispatch } from '../../redux/store';
+import type { AppDispatch, RootState } from '../../redux/store';
 import { createQuestion } from '../../redux/slices/QuestionsSlice';
 import { getAllTags, type Tag } from '../../redux/slices/TagsSlice';
 import { setProjects, setLoading as setProjectsLoading, setError as setProjectsError} from '../../redux/slices/ProjectSlice'
 import { getAllProjects } from '../../services/ProjectService';
 import type { Project } from '../../redux/types';
-import { Search, X, ChevronDown, CheckCircle } from 'lucide-react';
+import {X, ChevronDown, CheckCircle } from 'lucide-react';
 
 const AskQuestionCard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
@@ -37,7 +36,12 @@ const AskQuestionCard: React.FC = () => {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdQuestionId, setCreatedQuestionId] = useState<number | null>(null);
 
-  const currentUserId = 9;
+  // Refs for dropdown handling
+  const tagDropdownRef = useRef<HTMLDivElement>(null);
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
+  const visibilityDropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentUserId = useSelector((state: RootState) => state.users.user!.id);
 
   // Fetch all tags on component mount
   useEffect(() => {
@@ -45,6 +49,7 @@ const AskQuestionCard: React.FC = () => {
       setIsLoadingTags(true);
       try {
         const result = await dispatch(getAllTags()).unwrap();
+        console.log('Fetched tags:', result); // Debug log
         setAvailableTags(result);
       } catch (error) {
         console.error('Failed to fetch tags:', error);
@@ -84,6 +89,24 @@ const AskQuestionCard: React.FC = () => {
     fetchProjects();
   }, [dispatch]);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tagDropdownRef.current && !tagDropdownRef.current.contains(event.target as Node)) {
+        setShowTagSuggestions(false);
+      }
+      if (projectDropdownRef.current && !projectDropdownRef.current.contains(event.target as Node)) {
+        setShowProjectDropdown(false);
+      }
+      if (visibilityDropdownRef.current && !visibilityDropdownRef.current.contains(event.target as Node)) {
+        setShowVisibilityDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
@@ -112,28 +135,55 @@ const AskQuestionCard: React.FC = () => {
   };
 
   const handleAddTag = (tag: Tag) => {
-    if (selectedTags.length < 5 && !selectedTags.find(t => t.id === tag.id)) {
-      setSelectedTags([...selectedTags, tag]);
-      setTagInput('');
-      setShowTagSuggestions(false);
-      if (errors.tags) {
-        setErrors({ ...errors, tags: '' });
-      }
+    console.log('Adding tag:', tag); // Debug log
+    console.log('Current selected tags:', selectedTags); // Debug log
+    
+    if (selectedTags.length >= 5) {
+      console.warn('Maximum tags reached');
+      return;
+    }
+    
+    const tagExists = selectedTags.some(t => t.id === tag.id);
+    if (tagExists) {
+      console.warn('Tag already selected');
+      return;
+    }
+
+    const updatedTags = [...selectedTags, tag];
+    setSelectedTags(updatedTags);
+    console.log('Updated tags:', updatedTags); // Debug log
+    
+    setTagInput('');
+    setShowTagSuggestions(false);
+    
+    if (errors.tags) {
+      setErrors({ ...errors, tags: '' });
     }
   };
 
   const handleRemoveTag = (tagId: number) => {
-    setSelectedTags(selectedTags.filter(tag => tag.id !== tagId));
+    console.log('Removing tag:', tagId); // Debug log
+    const updatedTags = selectedTags.filter(tag => tag.id !== tagId);
+    setSelectedTags(updatedTags);
+    console.log('Tags after removal:', updatedTags); // Debug log
   };
 
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
+    if (e.key === 'Enter') {
       e.preventDefault();
+      
+      if (!tagInput.trim()) {
+        return;
+      }
+      
       const matchingTag = availableTags.find(
         tag => tag.name.toLowerCase() === tagInput.trim().toLowerCase()
       );
+      
       if (matchingTag) {
         handleAddTag(matchingTag);
+      } else {
+        console.warn('No matching tag found for:', tagInput);
       }
     }
   };
@@ -141,10 +191,13 @@ const AskQuestionCard: React.FC = () => {
   const getFilteredTags = () => {
     if (!tagInput.trim()) return availableTags;
     
-    return availableTags.filter(tag => 
+    const filtered = availableTags.filter(tag => 
       tag.name.toLowerCase().includes(tagInput.toLowerCase()) && 
-      !selectedTags.find(t => t.id === tag.id)
+      !selectedTags.some(t => t.id === tag.id)
     );
+    
+    console.log('Filtered tags:', filtered); // Debug log
+    return filtered;
   };
 
   const handleProjectSelect = (project: Project) => {
@@ -157,6 +210,8 @@ const AskQuestionCard: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('Submitting with tags:', selectedTags); // Debug log
     
     if (!validateForm()) {
       return;
@@ -174,6 +229,8 @@ const AskQuestionCard: React.FC = () => {
         related_project: selectedProject!.id
       };
 
+      console.log('Question data being submitted:', questionData); // Debug log
+
       const result = await dispatch(createQuestion(questionData)).unwrap();
       
       // Store the created question ID and show success dialog
@@ -189,7 +246,7 @@ const AskQuestionCard: React.FC = () => {
 
   const handleViewQuestion = () => {
     if (createdQuestionId) {
-      navigate(`/questions/${createdQuestionId}`);
+      navigate(`/question/${createdQuestionId}`);
     }
   };
 
@@ -224,27 +281,10 @@ const AskQuestionCard: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Search for Similar Questions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search before posting to avoid duplicates
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for similar questions..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
             {/* Question Title */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Question Title
+                Question Title<span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -269,7 +309,7 @@ const AskQuestionCard: React.FC = () => {
             {/* Detailed Description */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Detailed Description
+                Detailed Description<span className="text-red-500">*</span>
               </label>
               <textarea
                 value={description}
@@ -297,9 +337,9 @@ const AskQuestionCard: React.FC = () => {
             </div>
 
             {/* Tags */}
-            <div>
+            <div ref={tagDropdownRef}>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Tags
+                Tags<span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <div className={`flex items-center gap-2 flex-wrap p-2 border rounded-lg focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent ${
@@ -313,7 +353,11 @@ const AskQuestionCard: React.FC = () => {
                       {tag.name}
                       <button
                         type="button"
-                        onClick={() => handleRemoveTag(tag.id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveTag(tag.id);
+                        }}
                         className="hover:bg-indigo-200 rounded-full p-0.5"
                       >
                         <X className="w-3 h-3" />
@@ -325,18 +369,17 @@ const AskQuestionCard: React.FC = () => {
                     value={tagInput}
                     onChange={(e) => {
                       setTagInput(e.target.value);
-                      setShowTagSuggestions(e.target.value.length > 0);
+                      setShowTagSuggestions(true);
                     }}
                     onKeyDown={handleTagInputKeyDown}
-                    onFocus={() => setShowTagSuggestions(tagInput.length > 0 || availableTags.length > 0)}
-                    onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                    onFocus={() => setShowTagSuggestions(true)}
                     placeholder={selectedTags.length === 0 ? "Search and select tags..." : ""}
                     disabled={selectedTags.length >= 5 || isLoadingTags}
                     className="flex-1 min-w-[200px] px-2 py-1 outline-none disabled:bg-gray-50"
                   />
                 </div>
 
-                {showTagSuggestions && !isLoadingTags && (
+                {showTagSuggestions && !isLoadingTags && availableTags.length > 0 && (
                   <div className="absolute top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto">
                     <div className="p-2">
                       {getFilteredTags().length > 0 ? (
@@ -348,7 +391,10 @@ const AskQuestionCard: React.FC = () => {
                             <button
                               key={tag.id}
                               type="button"
-                              onClick={() => handleAddTag(tag)}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleAddTag(tag);
+                              }}
                               className="w-full text-left px-3 py-2 hover:bg-gray-50 rounded text-sm"
                             >
                               {tag.name}
@@ -377,9 +423,9 @@ const AskQuestionCard: React.FC = () => {
             </div>
 
             {/* Related Project */}
-            <div>
+            <div ref={projectDropdownRef}>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Related Project <span className="text-red-500">*</span>
+                Related Project<span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <button
@@ -426,9 +472,9 @@ const AskQuestionCard: React.FC = () => {
             </div>
 
             {/* Visibility */}
-            <div>
+            <div ref={visibilityDropdownRef}>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Visibility
+                Visibility<span className="text-red-500">*</span>
               </label>
               <div className="relative w-64">
                 <button
