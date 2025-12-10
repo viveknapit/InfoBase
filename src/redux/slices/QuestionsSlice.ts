@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { Question, QuestionsState, CreateQuestionPayload } from '../types';
-import { createQuestionApi, getAllQuestions, getQuestionById, voteQuestion, getMyQuestions} from '../../services/QuestionService';
+import { createQuestionApi, getAllQuestions, getQuestionById, voteQuestion, getMyQuestions, deleteQuestionApi} from '../../services/QuestionService';
 import type { VotePayload } from '../../services/Payload';
 
 export const fetchQuestions = createAsyncThunk(
@@ -48,6 +48,13 @@ export const createQuestion = createAsyncThunk(
   'questions/createQuestion',
   async (questionData: CreateQuestionPayload) => {
     return await createQuestionApi(questionData);
+  }
+);
+
+export const deleteQuestion = createAsyncThunk(
+  'questions/deleteQuestion',
+  async (id: number) => {
+    return await deleteQuestionApi(id);
   }
 );
 

@@ -28,6 +28,7 @@ export default function TopNavbar() {
         </button>
       </div>
 
+      {/* Centered search bar */}
       <div className="flex-1 flex justify-center px-6">
         
           {/* <Search className="w-5 h-5 text-gray-500" />
@@ -43,7 +44,6 @@ export default function TopNavbar() {
       <div className="flex items-center gap-4">
         <div className="relative">
           <NotificationToggle />
-        {/* <span className="absolute top-0 right-0 w-2 h-2 bg-blue-600 rounded-full"></span> */}
         </div>
 
         <ProfileToggle

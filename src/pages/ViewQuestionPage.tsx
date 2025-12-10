@@ -1,3 +1,4 @@
+// pages/ViewQuestionPage.tsx
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
@@ -7,6 +8,7 @@ import DetailedQuestionCard from "../features/Questions/DetailedQuestionCard";
 import AnswerCard from "../features/Answers/AnswerCard";
 import AddAnswerForm from "../features/Answers/AddAnswerForm";
 import { fetchAnswers, selectAnswersForQuestion } from "../redux/slices/AnswerSlice";
+import CommentModal from "../features/Comments/CommentModal";
 
 export default function ViewQuestionPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,6 +18,28 @@ export default function ViewQuestionPage() {
   const questionId = Number(id);
 
   const [showAnswerForm, setShowAnswerForm] = useState(false);
+
+  // modalState replaces showCommentsModal boolean so we can support both question & answer comments
+  type ModalState = {
+    open: boolean;
+    contentType: 'question' | 'answer';
+    parentId: number | null;
+  };
+
+  const [modalState, setModalState] = useState<ModalState>({
+    open: false,
+    contentType: 'question',
+    parentId: null,
+  });
+
+  const openCommentsForQuestion = (qId: number) =>
+    setModalState({ open: true, contentType: 'question', parentId: qId });
+
+  const openCommentsForAnswer = (aId: number) =>
+    setModalState({ open: true, contentType: 'answer', parentId: aId });
+
+  const closeCommentsModal = () =>
+    setModalState((s) => ({ ...s, open: false }));
 
   const answers = useSelector((s: RootState) => selectAnswersForQuestion(s, questionId));
   const loading = useSelector((s: RootState) => s.answers.loading);
@@ -44,8 +68,11 @@ export default function ViewQuestionPage() {
           <span>Back to Questions</span>
         </button>
 
-        {/* Question Detail */}
-        <DetailedQuestionCard questionId={questionId} />
+        {/* Question Detail - pass handler to open comments modal */}
+        <DetailedQuestionCard
+          questionId={questionId}
+          onOpenComments={() => openCommentsForQuestion(questionId)}
+        />
 
         {/* Answers Section */}
         <div className="mt-8">
@@ -67,7 +94,11 @@ export default function ViewQuestionPage() {
           ) : answers.length > 0 ? (
             <div className="space-y-4">
               {answers.map((ans) => (
-                <AnswerCard key={ans.id} answerId={ans.id} />
+                <AnswerCard
+                  key={ans.id}
+                  answerId={ans.id}
+                  onOpenComments={(answerId: number) => openCommentsForAnswer(answerId)}
+                />
               ))}
             </div>
           ) : (
@@ -102,6 +133,14 @@ export default function ViewQuestionPage() {
           )}
         </div>
       </div>
+
+      {/* Comments Modal (hosted in this page) */}
+      <CommentModal
+        contentType={modalState.contentType}
+        parentId={modalState.parentId ?? questionId}
+        open={modalState.open}
+        onClose={closeCommentsModal}
+      />
     </div>
   );
 }

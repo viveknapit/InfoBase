@@ -14,12 +14,14 @@ import {
 } from "../../redux/slices/AnswerSlice";
 import type { UserShort } from "../../services/Payload";
 import { isUserVotedToAnswer } from "../../services/QuestionService";
+import { selectCommentsForAnswer } from "../../redux/slices/CommentSlice";
 
 type Props = {
   answerId: number;
   showAcceptedBadge?: boolean;
   canAccept?: boolean;
   onAccept?: (id: number) => void;
+  onOpenComments?: (answerId: number) => void; // <-- added optional prop
 };
 
 export const Avatar: React.FC<{ user: UserShort; size?: number }> = ({ user, size = 36 }) => {
@@ -74,7 +76,14 @@ const ThumbsDownIcon: React.FC<{ className?: string }> = ({ className = "" }) =>
   </svg>
 );
 
-export default function AnswerCard({ answerId, showAcceptedBadge = true, canAccept = false, onAccept }: Props) {
+// Comment Icon (speech bubble) to match DetailedQuestionCard style
+const CommentIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+export default function AnswerCard({ answerId, showAcceptedBadge = true, canAccept = false, onAccept, onOpenComments }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const answer = useSelector((state: RootState) => selectAnswerById(state, answerId)) as Answer | undefined;
 
@@ -245,6 +254,10 @@ export default function AnswerCard({ answerId, showAcceptedBadge = true, canAcce
   const hasUpvoted = voteStatus === 1;
   const hasDownvoted = voteStatus === -1;
 
+  // comments count from slice
+  const comments = useSelector((s: RootState) => selectCommentsForAnswer(s, answerId));
+  const commentsCount = comments?.length ?? 0;
+
   return (
     <article className="bg-white rounded shadow-sm p-4 mb-4">
       {/* Header */}
@@ -326,6 +339,20 @@ export default function AnswerCard({ answerId, showAcceptedBadge = true, canAcce
               Accept Answer
             </button>
           )}
+
+          {/* Comments button (opens modal in parent via onOpenComments) */}
+          <button
+            onClick={() => onOpenComments && onOpenComments(answerId)}
+            className="relative flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium transition-colors border border-gray-200"
+            aria-label="Open comments"
+            title={`${commentsCount} comment${commentsCount === 1 ? '' : 's'}`}
+          >
+            <CommentIcon className="w-4 h-4" />
+            <span>Comments</span>
+            <span className={`ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full ${commentsCount ? 'bg-indigo-600 text-white' : 'bg-gray-300 text-gray-700'}`}>
+              {commentsCount}
+            </span>
+          </button>
         </div>
       </div>
     </article>

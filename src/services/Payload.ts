@@ -62,6 +62,29 @@ export interface VotePayload{
     action: string
 }
 
+export interface DeleteResponse{
+    success: boolean,
+    message: string
+}
+
+export interface Comment{
+    id:number,
+    text:string,
+    user:UserShort,
+    contentType:string,
+    parentId:number,
+    createdAt:string,
+    updatedAt:string
+}
+
+export interface CommentResponse{
+    comments: Comment[]
+}
+
+export interface CommentPayload{
+    text:string,
+    parentId:number
+}
 
 export const TOKEN_KEY = "Infobase-Token";
 

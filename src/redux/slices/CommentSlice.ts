@@ -1,160 +1,183 @@
-// commentsSlice.ts
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
-import type { Comment, ParentType } from "../types";
-import axios from "axios";
+// redux/slices/CommentSlice.ts
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import type { Comment, CommentPayload } from '../../services/Payload';
+import {
+  getCommentsForQuestionApi,
+  createCommentForQuestionApi,
+  deleteCommentApi,
+  getCommentsForAnswerApi,
+  createCommentForAnswerApi
+} from '../../services/CommentService';
+import type { RootState } from '../store';
 
-interface CommentsState {
-  byParent: Record<string, Comment[]>; // key = `${parent_type}:${parent_id}`
-  loading: Record<string, boolean>;
-  error: Record<string, string | null>;
-}
-
-const initialState: CommentsState = {
-  byParent: {},
-  loading: {},
-  error: {},
+type CommentsState = {
+  byQuestion: Record<number, Comment[]>;
+  byAnswer: Record<number, Comment[]>;
+  loading: boolean;
+  error: string | null;
 };
 
-// helper to make key
-const makeKey = (parent_type: ParentType, parent_id: string | number) =>
-  `${parent_type}:${parent_id}`;
+const initialState: CommentsState = {
+  byQuestion: {},
+  byAnswer: {},
+  loading: false,
+  error: null,
+};
 
-/* Thunks */
+export const fetchCommentsForQuestion = createAsyncThunk(
+  'comments/fetchCommentsForQuestion',
+  async (questionId: number) => {
+    const comments = await getCommentsForQuestionApi(questionId);
+    return { questionId, comments };
+  }
+);
 
-// fetch comments for parent
-export const fetchComments = createAsyncThunk<
-  { parent_type: ParentType; parent_id: string | number; comments: Comment[] },
-  { parent_type: ParentType; parent_id: string | number; limit?: number; after?: string }
->("comments/fetch", async ({ parent_type, parent_id, limit = 20, after }) => {
-  const res = await axios.get(`/api/comments/${parent_type}/${parent_id}`, {
-    params: { limit, after },
-  });
-  return { parent_type, parent_id, comments: res.data.comments };
-});
+export const fetchCommentsForAnswer = createAsyncThunk(
+  'comments/fetchCommentsForAnswer',
+  async (answerId: number) => {
+    const comments = await getCommentsForAnswerApi(answerId);
+    return { answerId, comments };
+  }
+);
 
-// post a comment
-export const postComment = createAsyncThunk<
-  { parent_type: ParentType; parent_id: string | number; comment: Comment },
-  { parent_type: ParentType; parent_id: string | number; body: string; tempId?: string }
->("comments/post", async ({ parent_type, parent_id, body }) => {
-  const res = await axios.post(`/api/comments`, { parent_type, parent_id, body });
-  return { parent_type, parent_id, comment: res.data };
-});
+/**
+ * Create comment specifically for a question.
+ * payload should include at least { questionId, text, ... }
+ */
+export const createCommentForQuestion = createAsyncThunk(
+  'comments/createCommentForQuestion',
+  async (payload: CommentPayload) => {
+    const comment = await createCommentForQuestionApi(payload);
+    return comment;
+  }
+);
 
-// edit a comment
-export const editComment = createAsyncThunk<
-  { comment: Comment },
-  { id: string | number; body: string; parent_type: ParentType; parent_id: string | number }
->("comments/edit", async ({ id, body }) => {
-  const res = await axios.put(`/api/comments/${id}`, { body });
-  return { comment: res.data };
-});
+/**
+ * Create comment specifically for an answer.
+ * payload should include at least { answerId, text, ... }
+ */
+export const createCommentForAnswer = createAsyncThunk(
+  'comments/createCommentForAnswer',
+  async (payload: CommentPayload) => {
+    const comment = await createCommentForAnswerApi(payload);
+    return comment;
+  }
+);
 
-// delete comment
-export const deleteComment = createAsyncThunk<
-  { id: string | number },
-  { id: string | number; parent_type?: ParentType; parent_id?: string | number }
->("comments/delete", async ({ id }) => {
-  await axios.delete(`/api/comments/${id}`);
-  return { id };
-});
-
-
+export const deleteComment = createAsyncThunk(
+  'comments/deleteComment',
+  async (commentId: number) => {
+    await deleteCommentApi(commentId);
+    return commentId;
+  }
+);
 
 const commentsSlice = createSlice({
-  name: "comments",
+  name: 'comments',
   initialState,
   reducers: {
-    addCommentOptimistic: (
-      state,
-      action: PayloadAction<{ parent_type: ParentType; parent_id: string | number; tempComment: Comment }>
-    ) => {
-      const { parent_type, parent_id, tempComment } = action.payload;
-      const key = makeKey(parent_type, parent_id);
-      state.byParent[key] = [...(state.byParent[key] || []), tempComment];
+    clearCommentsForQuestion: (state, action: PayloadAction<number>) => {
+      delete state.byQuestion[action.payload];
     },
-
-    
-    removeTempComment: (
-      state,
-      action: PayloadAction<{ parent_type: ParentType; parent_id: string | number; tempId: string }>
-    ) => {
-      const { parent_type, parent_id, tempId } = action.payload;
-      const key = makeKey(parent_type, parent_id);
-      state.byParent[key] = (state.byParent[key] || []).filter((c) => String(c.id) !== String(tempId));
-    },
+    clearCommentsForAnswer: (state, action: PayloadAction<number>) => {
+      delete state.byAnswer[action.payload];
+    }
   },
   extraReducers: (builder) => {
-    // fetchComments
-    builder.addCase(fetchComments.pending, (state, action) => {
-      const { parent_type, parent_id } = action.meta.arg;
-      const key = makeKey(parent_type, parent_id);
-      state.loading[key] = true;
-      state.error[key] = null;
-    });
-    builder.addCase(fetchComments.fulfilled, (state, action) => {
-      const { parent_type, parent_id, comments } = action.payload;
-      const key = makeKey(parent_type, parent_id);
-      state.loading[key] = false;
-      state.byParent[key] = comments;
-      state.error[key] = null;
-    });
-    builder.addCase(fetchComments.rejected, (state, action) => {
-      const { parent_type, parent_id } = action.meta.arg;
-      const key = makeKey(parent_type, parent_id);
-      state.loading[key] = false;
-      state.error[key] = action.error.message || "Failed to load";
-    });
+    builder
+      // fetch question
+      .addCase(fetchCommentsForQuestion.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCommentsForQuestion.fulfilled, (state, action) => {
+        state.loading = false;
+        state.byQuestion[action.payload.questionId] = Array.isArray(action.payload.comments)
+          ? (action.payload.comments as unknown as Comment[]).slice()
+          : [];
+      })
+      .addCase(fetchCommentsForQuestion.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch comments';
+      })
 
-    // postComment
-    builder.addCase(postComment.pending, (state, action) => {
-      const { parent_type, parent_id } = action.meta.arg;
-      const key = makeKey(parent_type, parent_id);
-      state.loading[key] = true;
-      state.error[key] = null;
-    });
-    builder.addCase(postComment.fulfilled, (state, action) => {
-      const { parent_type, parent_id, comment } = action.payload;
-      const key = makeKey(parent_type, parent_id);
-      state.loading[key] = false;
-      const existing = state.byParent[key] || [];
-      // remove any pending comments (optional) and append server comment
-      state.byParent[key] = [...existing.filter((c) => !c.pending), comment];
-    });
-    builder.addCase(postComment.rejected, (state, action) => {
-      const { parent_type, parent_id } = action.meta.arg;
-      const key = makeKey(parent_type, parent_id);
-      state.loading[key] = false;
-      state.error[key] = action.error.message || "Failed to post";
-    });
+      // fetch answer
+      .addCase(fetchCommentsForAnswer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCommentsForAnswer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.byAnswer[action.payload.answerId] = Array.isArray(action.payload.comments)
+          ? (action.payload.comments as unknown as Comment[]).slice()
+          : [];
+      })
+      .addCase(fetchCommentsForAnswer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch comments';
+      })
 
-    // editComment
-    builder.addCase(editComment.fulfilled, (state, action) => {
-      const comment = action.payload.comment;
-      const key = makeKey(comment.parent_type as ParentType, comment.parent_id);
-      state.byParent[key] = (state.byParent[key] || []).map((c) =>
-        String(c.id) === String(comment.id) ? comment : c
-      );
-    });
+      // create for question
+      .addCase(createCommentForQuestion.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(createCommentForQuestion.fulfilled, (state, action) => {
+        // action.payload: Comment returned by API
+        // action.meta.arg: original CommentPayload (may include questionId)
+        const returned = action.payload as unknown as Comment | undefined | null;
+        const originalPayload = action.meta?.arg as CommentPayload | undefined;
+        const qId = originalPayload?.parentId ?? (returned && (returned.parentId as number)) ?? undefined;
+        if (!qId) {
+          console.warn('[comments] createCommentForQuestion.fulfilled: missing questionId', action);
+          return;
+        }
+        if (!state.byQuestion[qId]) state.byQuestion[qId] = [];
+        if (returned && typeof returned.id === 'number') state.byQuestion[qId].push(returned);
+      })
+      .addCase(createCommentForQuestion.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to create comment for question';
+      })
 
-    // deleteComment
-    builder.addCase(deleteComment.fulfilled, (state, action) => {
-      const { id } = action.payload;
-      for (const key of Object.keys(state.byParent)) {
-        state.byParent[key] = state.byParent[key].filter((c) => String(c.id) !== String(id));
-      }
-    });
-  },
+      // create for answer
+      .addCase(createCommentForAnswer.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(createCommentForAnswer.fulfilled, (state, action) => {
+        const returned = action.payload as unknown as Comment | undefined | null;
+        const originalPayload = action.meta?.arg as CommentPayload | undefined;
+        const aId = originalPayload?.parentId ?? (returned && (returned.parentId as number)) ?? undefined;
+        if (!aId) {
+          console.warn('[comments] createCommentForAnswer.fulfilled: missing answerId', action);
+          return;
+        }
+        if (!state.byAnswer[aId]) state.byAnswer[aId] = [];
+        if (returned && typeof returned.id === 'number') state.byAnswer[aId].push(returned);
+      })
+      .addCase(createCommentForAnswer.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to create comment for answer';
+      })
+
+      // delete
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        const id = action.payload as number;
+        for (const qIdStr of Object.keys(state.byQuestion)) {
+          const qId = Number(qIdStr);
+          state.byQuestion[qId] = state.byQuestion[qId].filter(c => c.id !== id);
+        }
+        for (const aIdStr of Object.keys(state.byAnswer)) {
+          const aId = Number(aIdStr);
+          state.byAnswer[aId] = state.byAnswer[aId].filter(c => c.id !== id);
+        }
+      });
+  }
 });
 
+export const { clearCommentsForQuestion, clearCommentsForAnswer } = commentsSlice.actions;
 
-export const { addCommentOptimistic, removeTempComment } = commentsSlice.actions;
+export const selectCommentsForQuestion = (state: RootState, questionId: number) =>
+  state.comments.byQuestion[questionId] || [];
+
+export const selectCommentsForAnswer = (state: RootState, answerId: number) =>
+  state.comments.byAnswer[answerId] || [];
+
 export default commentsSlice.reducer;
-
-/* Selectors */
-export const selectCommentsFor = (
-  state: { comments: CommentsState },
-  parent_type: ParentType,
-  parent_id: string | number
-) => state.comments.byParent[makeKey(parent_type, parent_id)] || [];

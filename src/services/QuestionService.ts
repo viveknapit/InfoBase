@@ -1,6 +1,6 @@
 import api from "../lib/api";
 import type { CreateQuestionPayload, Question } from "../redux/types";
-import type { AllQuestionResponse, AnswerResponse, VotePayload } from "./Payload";
+import type { AllQuestionResponse, AnswerResponse, DeleteResponse, VotePayload } from "./Payload";
 
 export async function createQuestionApi(questionData: CreateQuestionPayload) {
     const res = await api.post("api/questions", questionData);
@@ -30,6 +30,12 @@ export async function getAnswerByQId(QId:number): Promise<AnswerResponse> {
 export const postAnswer = async (questionId:number, body: string) => {
   return await api.post(`/api/questions/${questionId}/answers`, { body });
 };
+
+export async function deleteQuestionApi(questionId:number): Promise<DeleteResponse>{
+    const res = await api.delete(`api/questions/${questionId}`);
+
+    return res.data;
+}
 
 export async function voteQuestion(votePayload: VotePayload): Promise<boolean>{
     const res = await api.post("api/question/vote", votePayload);

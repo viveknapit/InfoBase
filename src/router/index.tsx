@@ -19,6 +19,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "/ask", element: <AskQuestionPage /> },
+      { path: "/search", element: <SearchPage /> },
       {path: "/question/:id", element: <ViewQuestionPage />},
       {path: "/question/me", element: <MyQuestionsPage />},
       {path: "/requests", element: <RequestsPage />},
