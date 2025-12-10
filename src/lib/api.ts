@@ -1,7 +1,9 @@
 import axios from "axios";
 import { TOKEN_KEY } from "../services/Payload";
 
-const API_BASE = "https://infobase-backend-81qv.onrender.com";
+//const API_BASE = "https://infobase-backend-81qv.onrender.com";
+
+const API_BASE = "http://localhost:8080"
 
 const api = axios.create({
     baseURL: API_BASE,
